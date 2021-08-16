@@ -24,4 +24,4 @@ TBD
 ## 5	Possible Extensions
 
 ## 6	Contributors
-* [Rajesh Rao](https://github.com/Raj9898) (Sr. Research Analyst)
+* [Rajesh Rao](https://github.com/raj-rao-rr) (Sr. Research Analyst)
