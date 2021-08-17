@@ -21,6 +21,10 @@ TBD
 
 ## 4	Running Code
 
+
+!/apps/Anaconda3-2019.03/bin/python -b '/home/../../../../Code/lib/option_remapping.py'
+
+
 ## 5	Possible Extensions
 
 ## 6	Contributors
