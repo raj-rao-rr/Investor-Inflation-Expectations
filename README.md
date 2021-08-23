@@ -7,7 +7,7 @@ TBD
 *	MATLAB 2020a with the following toolboxes (Econometrics, Optimization, Financial)
 *	Python 3.6 with the following toolboxes (Pandas)
 *	Bloomberg Professional Services for historical data
-*	MATLAB system environment with at least 3 GB of memory
+*	MATLAB system environment with at least 5 GB of memory
 
 ## 3	Code Structure
 
@@ -63,9 +63,18 @@ Folder and sub-folders are provided to store graphs and tables for forecasts, re
 5. Download the updated [Nakamura and Steinsson (2018)](http://www.columbia.edu/~jma2241/replication/NS.xlsx) shocks from Miguel Acosta's website. In future this link may change so refer to [Emi Nakamura](https://eml.berkeley.edu/~enakamura/papers.html) personal website for further details. 
 
 Prior to runing the `main.m` file we will need to modify a few paths to point the directory to the correct python compiler on your machine. 
-% expressed path is of the form [compiler] -b [script path]
-% NOTE THAT COMPILER PATH AND SCRIPT PATH ARE DEPENDENT ON USER SPECIFICATION
-!/apps/Anaconda3-2019.03/bin/python -b '/home/rcerxr21/DesiWork/Policy/Inflation_Swap_Breakeven_Basis/Code/lib/option_remapping.py'
+
+1. In the `data_gather.m` file, modify the paths on line [INSERT LINE NUMBER] expressed path is of the form [compiler path] -b [script path]
+```
+% e.g. compiler path with accompanying script path for the python file in lib (i.e., library) folder
+!/apps/Anaconda3-2019.03/bin/python -b '/home/../../../../Code/lib/option_remapping.py'
+```
+
+2. Once all data has been updated, and paths are set, you are free to run the entire project base. You may opt to run the main.m file in a MATLAB interactive session or via terminal on your local machine or HPC cluster.
+```
+% %    e.g., running code via batch on the FRBNY RAN HPC Cluster
+$ matlab20a-batch-withemail 5 main.m 
+```
 
 ## 5	Possible Extensions
 
