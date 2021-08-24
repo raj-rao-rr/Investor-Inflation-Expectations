@@ -15,7 +15,7 @@ TBD
 
 All project code is stored in the `/Code` folder for generating figures and performing analysis. Refer to the headline comment string in each file for a general description of the purpose of the script in question.
 
-* /.../lib/ stores functions derived from academic papers or individual use to compute statistical tests or perform complex operations
+* `/.../lib/` stores functions derived from academic papers or individual use to compute statistical tests or perform complex operations
 
 ### 3.2 	`/Input`
 
