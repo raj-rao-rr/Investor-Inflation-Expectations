@@ -64,7 +64,7 @@ monthly_cpi = rmmissing(monthly_cpi);
 
 % expressed path is of the form [compiler] -b [script path]
 % NOTE THAT COMPILER PATH AND SCRIPT PATH ARE DEPENDENT ON USER SPECIFICATION
-!/apps/Anaconda3-2019.03/bin/python; -b '/home/rcerxr21/DesiWork/Policy/Inflation_Swap_Breakeven_Basis/Code/lib/option_remapping.py'
+!/apps/Anaconda3-2019.03/bin/python -b '/home/rcerxr21/DesiWork/Policy/Inflation_Swap_Breakeven_Basis/Code/lib/option_remapping.py'
 
 %% Inflation Options Data (Caps & Floors), taken from Bloomberg
 

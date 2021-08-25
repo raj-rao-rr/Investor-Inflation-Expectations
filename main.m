@@ -16,7 +16,6 @@ addpath([root_dir filesep 'Temp'])
 addpath([root_dir filesep 'Output'])  
  
 %% running project scripts in synchronous order 
-
 % run('data_gather.m')   
 % run('implied_probability.m')
 % run('macro_response.m')  

@@ -110,9 +110,9 @@ for i = 1:length(term_structure)
     for strike = 2:N-1
         
         % determine column names for all strikes used in butterfly
-        top_strike = strcat(term, "-", inflation_strikes(strike+1), " Last Price");
-        mid_strike = strcat(term, "-", inflation_strikes(strike), " Last Price");
-        bot_strike = strcat(term, "-", inflation_strikes(strike-1), " Last Price");
+        top_strike = strcat(term, "_", inflation_strikes(strike+1), " Last Price");
+        mid_strike = strcat(term, "_", inflation_strikes(strike), " Last Price");
+        bot_strike = strcat(term, "_", inflation_strikes(strike-1), " Last Price");
         
         % we check to see whether we should make the spread of caps, floors
         % or if we should the average of both (caps + floors) / 2
@@ -157,11 +157,11 @@ for i = 1:length(term_structure)
     % ----------------------------------------
     
     % determine column names for all strikes used in vertical
-    left_strike1 = strcat(term, "-", "-3.00% Last Price");
-    left_strike2 = strcat(term, "-", "-2.00% Last Price");
+    left_strike1 = strcat(term, "_", "-3.00% Last Price");
+    left_strike2 = strcat(term, "_", "-2.00% Last Price");
     
-    right_strike1 = strcat(term, "-", "6.00% Last Price");
-    right_strike2 = strcat(term, "-", "5.00% Last Price");
+    right_strike1 = strcat(term, "_", "6.00% Last Price");
+    right_strike2 = strcat(term, "_", "5.00% Last Price");
     
     % compute the left vertical spread to measure the tail probability 
     implied_proba(:, 1) = zc_floors{:, left_strike2} - zc_floors{:, left_strike1};
@@ -186,6 +186,8 @@ end
 fprintf('Implied probabilites have been constructured from integer-butterflies.\n');
 
 %% Compute implied probability distribution spline and volatility smile (SLOW)
+% currently having errors with pricing, we will work on this later but 
+% currently we comment out the code to be worked on later
 
 for idx1 = 1:length(term_remap)
     
@@ -221,72 +223,72 @@ for idx1 = 1:length(term_remap)
         % map corresponding row to spline array
         proba_spline(idx2, :) = interpolation;
         
-        % ----------------------------------------
-        % Volatility Smile Graph (Caps vs Floors)
-        % ----------------------------------------
-        
-        if ismember(year_str, {'03', '05', '07', '10', '15', '20'})
-        
-            % store prices for caps and floors, determine prices series for
-            % each corresponding year (e.g. 1y, -3.00% to 6.00%)
-            cap_names = cellfun(@(i) strcat(year_name, "-", i, " Last Price"), ...
-                caps_strikes_remap);
-            floor_names = cellfun(@(i) strcat(year_name, "-", i, " Last Price"), ...
-                floors_strikes_remap);
-
-            % retrieve the correct cap and floor series corresponding to
-            % implied probability measures computed from butterflies
-            caps = zc_caps{idx2, cap_names};
-            floors = zc_floors{idx2, floor_names};
-
-            % retrieve information relevant to cap/floor prices 
-            rN = ust_rates{idx2, strcat('SVENY', year_str)};                          % nominal rate (UST)
-            rR = tips_rates{idx2, strcat('TIPSY', year_str)};                          % real rate (TIPS)
-
-            current_date = tb{idx2, 1};         % current date for option price
-            mm = month(current_date);           % current month
-            yy = year(current_date);            % current year
-
-            % CPI inflation index corresponding to current/prior year and prior
-            % month, in order to avoid lookahead bias
-            inflation = monthly_cpi{ismember(monthly_cpi.YEAR, yy) & ...
-                ismember(monthly_cpi.MONTH, mm-1), 'CPALTT01USM657N'};
-
-            % compute the volatility smile from the cap prices
-            %   V: we scale the cap prices by 10000, since their priced in bps
-            %   K: we scale the inflation strikes by 100 to reduce to pct terms
-            vol_cap_smile = arrayfun(@(V, K) newton_raphson_iv(V/10000, rR/100, ...
-                rN/100, K/100, inflation/100, inflation/100, str2double(year_str), 1),   ...
-                caps, caps_strikes_map);  
-            vol_floor_smile = arrayfun(@(V, K) newton_raphson_iv(V/10000, rR/100, ...
-                rN/100, K/100, inflation/100, inflation/100, str2double(year_str), 0),   ...
-                floors, floors_strikes_map);  
-            
-            % condition ensures all prices re-derive an implied volatility 
-            if sum(isnan(vol_cap_smile)) == 0
-               
-                % interpolate the implied volatility over strike range
-                interpolation = spline(caps_strikes_map, vol_cap_smile, ...
-                    cap_vol_interpolation);
-
-                % map the corresponding interpolated volatility 
-                cap_smile(idx2, :) = interpolation;
-
-            end
-            
-            % condition ensures all prices re-derive an implied volatility 
-            if sum(isnan(vol_floor_smile)) == 0
-               
-                % interpolate the implied volatility over strike range
-                interpolation = spline(floors_strikes_map, vol_floor_smile, ...
-                    floor_vol_interpolation);
-
-                % map the corresponding interpolated volatility 
-                floor_smile(idx2, :) = interpolation;
-
-            end
-            
-        end 
+%         % ----------------------------------------
+%         % Volatility Smile Graph (Caps vs Floors) 
+%         % ----------------------------------------
+%         
+%         if ismember(year_str, {'03', '05', '07', '10', '15', '20'})
+%         
+%             % store prices for caps and floors, determine prices series for
+%             % each corresponding year (e.g. 1y, -3.00% to 6.00%)
+%             cap_names = cellfun(@(i) strcat(year_name, "_", i, " Last Price"), ...
+%                 caps_strikes_remap);
+%             floor_names = cellfun(@(i) strcat(year_name, "_", i, " Last Price"), ...
+%                 floors_strikes_remap);
+% 
+%             % retrieve the correct cap and floor series corresponding to
+%             % implied probability measures computed from butterflies
+%             caps = zc_caps{idx2, cap_names};
+%             floors = zc_floors{idx2, floor_names};
+% 
+%             % retrieve information relevant to cap/floor prices 
+%             rN = ust_rates{idx2, strcat('SVENY', year_str)};                          % nominal rate (UST)
+%             rR = tips_rates{idx2, strcat('TIPSY', year_str)};                          % real rate (TIPS)
+% 
+%             current_date = tb{idx2, 1};         % current date for option price
+%             mm = month(current_date);           % current month
+%             yy = year(current_date);            % current year
+% 
+%             % CPI inflation index corresponding to current/prior year and prior
+%             % month, in order to avoid lookahead bias
+%             inflation = monthly_cpi{ismember(monthly_cpi.YEAR, yy) & ...
+%                 ismember(monthly_cpi.MONTH, mm-1), 'CPALTT01USM657N'};
+% 
+%             % compute the volatility smile from the cap prices
+%             %   V: we scale the cap prices by 10000, since their priced in bps
+%             %   K: we scale the inflation strikes by 100 to reduce to pct terms
+%             vol_cap_smile = arrayfun(@(V, K) newton_raphson_iv(V/10000, rR/100, ...
+%                 rN/100, K/100, inflation/100, inflation/100, str2double(year_str), 1),   ...
+%                 caps, caps_strikes_map);  
+%             vol_floor_smile = arrayfun(@(V, K) newton_raphson_iv(V/10000, rR/100, ...
+%                 rN/100, K/100, inflation/100, inflation/100, str2double(year_str), 0),   ...
+%                 floors, floors_strikes_map);  
+%             
+%             % condition ensures all prices re-derive an implied volatility 
+%             if sum(isnan(vol_cap_smile)) == 0
+%                
+%                 % interpolate the implied volatility over strike range
+%                 interpolation = spline(caps_strikes_map, vol_cap_smile, ...
+%                     cap_vol_interpolation);
+% 
+%                 % map the corresponding interpolated volatility 
+%                 cap_smile(idx2, :) = interpolation;
+% 
+%             end
+%             
+%             % condition ensures all prices re-derive an implied volatility 
+%             if sum(isnan(vol_floor_smile)) == 0
+%                
+%                 % interpolate the implied volatility over strike range
+%                 interpolation = spline(floors_strikes_map, vol_floor_smile, ...
+%                     floor_vol_interpolation);
+% 
+%                 % map the corresponding interpolated volatility 
+%                 floor_smile(idx2, :) = interpolation;
+% 
+%             end
+%             
+%         end 
         
     end
     
@@ -299,27 +301,27 @@ for idx1 = 1:length(term_remap)
     proba_spline_tb.Date = tb{:, 'Date'}; 
     proba_spline_tb = movevars(proba_spline_tb, 'Date', 'Before', '-3'); 
     
-    % construct the volatility smiles for caps & floors
-    cap_smile_tb = array2table(cap_smile);
-    cap_smile_tb.Properties.VariableNames = strsplit(num2str(cap_vol_interpolation));
-    cap_smile_tb.Date = tb{:, 'Date'}; 
-    cap_smile_tb = movevars(cap_smile_tb, 'Date', 'Before', '1'); 
-    
-    floor_smile_tb = array2table(floor_smile);
-    floor_smile_tb.Properties.VariableNames = strsplit(num2str(floor_vol_interpolation));
-    floor_smile_tb.Date = tb{:, 'Date'}; 
-    floor_smile_tb = movevars(floor_smile_tb, 'Date', 'Before', '-3'); 
+%     % construct the volatility smiles for caps & floors
+%     cap_smile_tb = array2table(cap_smile);
+%     cap_smile_tb.Properties.VariableNames = strsplit(num2str(cap_vol_interpolation));
+%     cap_smile_tb.Date = tb{:, 'Date'}; 
+%     cap_smile_tb = movevars(cap_smile_tb, 'Date', 'Before', '1'); 
+%     
+%     floor_smile_tb = array2table(floor_smile);
+%     floor_smile_tb.Properties.VariableNames = strsplit(num2str(floor_vol_interpolation));
+%     floor_smile_tb.Date = tb{:, 'Date'}; 
+%     floor_smile_tb = movevars(floor_smile_tb, 'Date', 'Before', '-3'); 
     
     export_name1 = strcat('Output/market_implied_probability/imp_proba_', ...
         year_name, '_spline.csv');
-    export_name2 = strcat('Output/market_implied_probability/imp_proba_', ...
-        year_name, '_cap_smile.csv');
-    export_name3 = strcat('Output/market_implied_probability/imp_proba_', ...
-        year_name, '_floor_smile.csv');
+%     export_name2 = strcat('Output/market_implied_probability/imp_proba_', ...
+%         year_name, '_cap_smile.csv');
+%     export_name3 = strcat('Output/market_implied_probability/imp_proba_', ...
+%         year_name, '_floor_smile.csv');
     
     writetable(proba_spline_tb, export_name1{:});
-    writetable(cap_smile_tb, export_name2{:});
-    writetable(floor_smile_tb, export_name3{:});
+%     writetable(cap_smile_tb, export_name2{:});
+%     writetable(floor_smile_tb, export_name3{:});
      
 end
 
@@ -407,51 +409,3 @@ usd_imp_inflation_rate.Date = tb{:, 1};
 usd_imp_inflation_rate = movevars(usd_imp_inflation_rate, 'Date', 'Before', '1y'); 
 
 save('Temp/PROBA.mat', 'usd_imp_inflation_rate', '-append') 
-
-%% TO BE DELETED IN FUTURE (VOL SMILE PROCESSING - WORK IN PROGRESS)
-
-% name = strcat('Output/market_implied_probability/imp_proba_3y_cap_smile.csv');
-% tb = readtable(name, 'ReadVariableNames', true, 'PreserveVariableNames', true);
-% idx = 1641; 
-% 
-% og_prices = zc_caps{idx, {'3y-1.00% Last Price', '3y-1.50% Last Price', ...
-%     '3y-2.00% Last Price', '3y-2.50% Last Price', '3y-3.00% Last Price', ...
-%     '3y-3.50% Last Price', '3y-4.00% Last Price', '3y-4.50% Last Price', ...
-%     '3y-5.00% Last Price', '3y-6.00% Last Price'}}; 
-% vols = tb{idx, 2:end};
-% 
-% T = 3;                                      % maturity
-% rN = ust_rates{idx, strcat('SVENY03')};     % nominal rate (UST)
-% rR = tips_rates{idx, strcat('TIPSY03')};    % real rate (TIPS)
-% current_date = tb{idx, 1};                  % current date for option price
-% mm = month(current_date);                   % current month
-% yy = year(current_date);                    % current year
-% K = 1:0.1:6;                                % inflation strikes (0.1 increment)
-% inflation = monthly_cpi{ismember(monthly_cpi.YEAR, yy) & ...
-%     ismember(monthly_cpi.MONTH, mm-1), 'CPALTT01USM657N'};
-% 
-% % compute the option price
-% option_prices = arrayfun(@(k, sigma) inf_option_black_mdl(rR/100, rN/100, k/100, ...
-%     inflation/100, inflation/100, sigma, T, 1), K, vols(1:10:end));
-% const_vol_prices = arrayfun(@(k) inf_option_black_mdl(rR/100, rN/100, k/100, ...
-%     inflation/100, inflation/100, 0.0065, T, 1), K);
-% 
-% % compute numerical RND (prior + next - 2*current)
-% diff = option_prices(1:end-2) + option_prices(3:end) - 2 * option_prices(2:end-1);
-% RND = (exp(rN*T) / 0.1^2) * diff;
-% 
-% % figure('visible', 'on');                         
-% % set(gcf, 'Position', [100, 100, 1250, 650]); hold on; 
-% % plot(K(2:end-1), RND)
-% 
-% figure('visible', 'off');                         
-% set(gcf, 'Position', [100, 100, 1250, 650]); 
-% hold on; 
-% plot(K, option_prices * 10000, 'LineWidth', 1.5, 'DisplayName', ...
-%     'Inflation Caps (Vol Smile)')
-% plot(K, const_vol_prices * 10000, 'LineWidth', 1.5, 'DisplayName', ...
-%     'Inflation Caps (Constant \sigma=0.0065)')
-% plot(caps_strikes_map, og_prices, 'LineWidth', 1.5, 'DisplayName', ...
-%     'Inflation Caps (Original Price)', 'Marker', 'd')
-% hold off; 
-% legend()
