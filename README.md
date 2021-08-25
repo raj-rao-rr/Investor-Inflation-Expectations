@@ -15,7 +15,9 @@ TBD
 
 All project code is stored in the `/Code` folder for generating figures and performing analysis. Refer to the headline comment string in each file for a general description of the purpose of the script in question.
 
-* `/.../lib/` stores functions derived from academic papers or individual use to compute statistical tests or perform complex operations
+* `/.../lib/` stores functions derived from academic papers or individual use to compute statistical tests or perform complex operations. Please refer to the in function documentation for each `.m` function for granular detail on function arguments and returns. 
+  
+  * `cusip_generator.py` this file is preserved in the code library, but is not run when calling the `main.m` file. This scipt was used to develop the Excel files within the options folder and **SHOULD NOT** be run unless those files are missing or have been deleted.  
 
 ### 3.2 	`/Input`
 
@@ -42,9 +44,9 @@ Folder for storing data files after being read and cleaned of missing/obstructed
 
 Folder and sub-folders are provided to store graphs and tables for forecasts, regressions, etc.
 
-* `/.../macro_response/`
-* `/.../market_implied_probability/`
-* `/.../market_implied_probability_buckets/`
+* `/.../macro_response/` stores png images displaying the price effect that various macro-economic annoucements have on the inflation basis, we observe both the cummulative and the absolute change in the return series  
+* `/.../market_implied_probability/` stores csv files with the implied inflation probabilites constructured from integer [butterfly-spreads](https://www.investopedia.com/terms/b/butterflyspread.asp#:~:text=A%20butterfly%20spread%20is%20an,move%20prior%20to%20option%20expiration.) and their corresponding cubic spline
+* `/.../market_implied_probability_buckets/` stores png images of the implied inflation rate and implied inflation probabilites for particular rates (e.g. probability of inflation being 3% or higher)
 * `/.../regressions/` stores coefficients for changes in volatility measures regressed on macro-economic announcements. For more detailed overview of the code responsible for constructing these measures refer to macro_regress.m.
 
 ## 4	Running Code
@@ -60,11 +62,11 @@ Folder and sub-folders are provided to store graphs and tables for forecasts, re
 2. Open the `/Input/options/..` file and systematically update each spreadsheet with the latest price series as follows - go to the Bloomberg tab on Excel and click the **Refresh Worksheets** icon to update the Bloomberg formulas. *Note if working on a separate server or cluster, these refreshed worksheets will need to be transferred to the designated workstation*
 3. Repeat Step 2 (above) for the files within the `/Input/swaps` folder
 4. To update the data series entitled `bloomberg_economic_releases.csv`, refer this [repo](https://github.com/raj-rao-rr/BBG-ECO-EXCEL). Simply transfer the `Output` series from the BBG-ECO-EXCEL project to the `Input` folder of this repo. 
-5. Download the updated [Nakamura and Steinsson (2018)](http://www.columbia.edu/~jma2241/replication/NS.xlsx) shocks from Miguel Acosta's website. In future this link may change so refer to [Emi Nakamura](https://eml.berkeley.edu/~enakamura/papers.html) personal website for further details. 
+5. Download the updated [Nakamura and Steinsson (2018)](http://www.columbia.edu/~jma2241/replication/NS.xlsx) shocks from Miguel Acosta's website and rename the file as **nakamura_steinsson_shocks.xlsx**. In future this link may change so refer to [Emi Nakamura](https://eml.berkeley.edu/~enakamura/papers.html) personal website for further details. 
 
 Prior to runing the `main.m` file we will need to modify a few paths to point the directory to the correct python compiler on your machine. 
 
-1. In the `data_gather.m` file, modify the paths on line [INSERT LINE NUMBER] expressed path is of the form [compiler path] -b [script path]
+1. In the `data_gather.m` file, modify the paths on line 67 expressed path is of the form [compiler path] -b [script path]
 ```
 % e.g. compiler path with accompanying script path for the python file in lib (i.e., library) folder
 !/apps/Anaconda3-2019.03/bin/python -b '/home/../../../../Code/lib/option_remapping.py'
