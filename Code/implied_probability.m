@@ -13,7 +13,8 @@ caps_strikes_map = [1.00, 1.50, 2.00, 2.50, 3.00, 3.50, 4.00, 4.50, 5.00, 6.00];
 caps_strikes_remap = {'1.00%', '1.50%', '2.00%', '2.50%', '3.00%', '3.50%', ...
                       '4.00%', '4.50%', '5.00%', '6.00%'};
 
-floors_strikes_map = [-3.00, -2.00, -1.00, -0.50, 0.00, 0.50, 1.00, 1.50, 2.00, 3.00];
+floors_strikes_map = [-3.00, -2.00, -1.00, -0.50, 0.00, 0.50, 1.00, ...
+    1.50, 2.00, 3.00];
 floors_strikes_remap = {'-3.00%', '-2.00%', '-1.00%', '-0.50%', '0.00%', ...
                        '0.50%', '1.00%', '1.50%', '2.00%', '3.00%'};
 
@@ -22,7 +23,7 @@ term_map = {'01', '03', '05', '07', '10', '15', '20', '30'};
 
 term_structure = [1, 3, 5, 7, 10, 15, 20, 30];
 
-%% Read in filtered data and perform cleaning operations
+%% Read in filtered zero-coupon option data and perform cleaning operations
 
 % data is stored for each Term and Strike, in the order of Bid, Ask, Last Price
 zc_caps = readtable(strcat(root_dir, '/Temp/options/usd-zc-inflation-caps.csv'), ...
@@ -41,11 +42,11 @@ for i = 1:length(term_structure)
     % ----------------------------------------
     % Convexity check for inflation caps
     % ----------------------------------------
-    itm_strike = strcat(term, "-1.00% Last Price");
-    otm_strike = strcat(term, "-6.00% Last Price");
+    itm_strike = strcat(term, "_1.00% Last Price");
+    otm_strike = strcat(term, "_6.00% Last Price");
     
     % the price of this spread should always be positive, since ITM options
-    % should always be priced higher than OTM due to convexity arb. 
+    % should always be priced higher than OTM due to convexity arbitrage 
     cap_check = zc_caps{:, itm_strike} - zc_caps{:, otm_strike}; 
     
     % for each loop of year, we filter the corresponding series
@@ -54,11 +55,11 @@ for i = 1:length(term_structure)
     % ----------------------------------------
     % Convexity check for inflation floor
     % ----------------------------------------
-    itm_strike = strcat(term, "-3.00% Last Price");
-    otm_strike = strcat(term, "--3.00% Last Price");
+    itm_strike = strcat(term, "_3.00% Last Price");
+    otm_strike = strcat(term, "_-3.00% Last Price");
     
     % the price of this spread should always be positive, since ITM options
-    % should always be priced higher than OTM due to convexity arb. 
+    % should always be priced higher than OTM due to convexity arbitrage 
     floor_check = zc_floors{:, itm_strike} - zc_floors{:, otm_strike}; 
     
     % for each loop of year, we filter the corresponding series

@@ -20,8 +20,14 @@ icon on the Bloomberg Excel tab to pull information on Bid Price, Ask Price, & L
 import pandas as pd 
 import numpy as np
 
-# seting up correct directory
-baseDirectory = '/home/rcerxr21/DesiWork/Policy/Inflation_Swap_Breakeven_Basis/'
+# base directory for the user, check for SAN/RAN or Local instance
+curr_pwd = os.getcwd()
+
+if 'NYRESAN' in curr_pwd: # working on a local instance
+    baseDirectory = '/'.join(curr_pwd.split('\\')[:-1])
+else:
+    baseDirectory = '/'.join(curr_pwd.split('/')[:-1])
+
 inputDirectory = baseDirectory + 'input/'
 
 

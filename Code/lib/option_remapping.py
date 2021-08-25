@@ -22,8 +22,14 @@ import pandas as pd
 # FUNCTIONS
 ##########################################################################
 
-# seting up correct directory
-baseDirectory = '/home/rcerxr21/DesiWork/Policy/Inflation_Swap_Breakeven_Basis/'
+# base directory for the user, check for SAN/RAN or Local instance
+curr_pwd = os.getcwd()
+
+if 'NYRESAN' in curr_pwd: # working on a local instance
+    baseDirectory = '/'.join(curr_pwd.split('\\')[:-1])
+else:
+    baseDirectory = '/'.join(curr_pwd.split('/')[:-1])
+
 inputDirectory = baseDirectory + 'Input/'
 tempDirectory = baseDirectory + 'Temp/'
 
@@ -62,7 +68,7 @@ def cusip_remap(cusip:str, strike_map:dict, term_map:dict):
     # e.g. 1, 10 -> strike, term
     strike, term = strike_term[0], strike_term[1:]
     
-    return term_map[term] + "-" + strike_map[strike]
+    return term_map[term] + "_" + strike_map[strike]
 
 # %% Fixing the inflation options data
 
@@ -117,7 +123,8 @@ yoy_floors.columns = new_yoy_floors.values
 
 if __name__ == '__main__':
 
-    # export cleaned series for corresponding zero coupons    
+    # we remove the first 5 rows and start when the price timeseries begins
+    # before exporting cleaned series for corresponding zero coupons  
     zc_caps.iloc[5:].to_csv(tempDirectory + 'options/usd-zc-inflation-caps.csv')
     yoy_caps.iloc[5:].to_csv(tempDirectory + 'options/usd-yoy-inflation-caps.csv')
     zc_floors.iloc[5:].to_csv(tempDirectory + 'options/usd-zc-inflation-floors.csv')
