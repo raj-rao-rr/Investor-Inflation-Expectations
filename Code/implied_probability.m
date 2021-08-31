@@ -374,8 +374,10 @@ fprintf('All inflation bucket probabilities are calculated.\n');
 
 %% Compute each implied netural inflation rate for each corresponding year 
 
-% initialize the USD inflation rate matrix (DO NOT HARDCODE SIZE CHANGE TO BE MORE DYNAMIC FOR FUTURE USE) 
-usd_imp_inflation_rate = zeros(1969, 8); %
+% initialize the USD inflation rate matrix 
+tb = readtable('Output/market_implied_probability/imp_proba_1y_spline.csv', ...
+    'ReadVariableNames', true, 'PreserveVariableNames', true);
+usd_imp_inflation_rate = zeros(size(tb, 1), 8); %
 
 % iterate through each term (year) and build implied pdf
 for i = 1:length(term_structure) 

@@ -25,13 +25,8 @@ import pandas as pd
 # base directory for the user, check for SAN/RAN or Local instance
 curr_pwd = os.getcwd()
 
-if 'NYRESAN' in curr_pwd: # working on a local instance
-    baseDirectory = '/'.join(curr_pwd.split('\\')[:-1])
-else:
-    baseDirectory = '/'.join(curr_pwd.split('/')[:-1])
-
-inputDirectory = baseDirectory + 'Input/'
-tempDirectory = baseDirectory + 'Temp/'
+inputDirectory = curr_pwd + '/Input/'
+tempDirectory = curr_pwd + '/Temp/'
 
 
 # %% Function handle for mapping CUSIPS to economic initutive expressions
@@ -130,4 +125,4 @@ if __name__ == '__main__':
     zc_floors.iloc[5:].to_csv(tempDirectory + 'options/usd-zc-inflation-floors.csv')
     yoy_floors.iloc[5:].to_csv(tempDirectory + 'options/usd-yoy-inflation-floors.csv')
 
-    print('Inflation data has been modified by mappign CUSIPS.\n')    
+    print('Inflation data has been modified by mapping CUSIPS.\n')    
