@@ -48,7 +48,7 @@ for i = 1:length(term_structure)
     % the price of this spread should always be positive, since ITM options
     % should always be priced higher than OTM due to convexity arbitrage 
     cap_check = zc_caps{:, itm_strike} - zc_caps{:, otm_strike}; 
-    
+    fprintf('Caps dimension %d', size(zc_caps, 1))
     % for each loop of year, we filter the corresponding series
     zc_caps = zc_caps(~(cap_check < 0), :);
     
@@ -61,7 +61,7 @@ for i = 1:length(term_structure)
     % the price of this spread should always be positive, since ITM options
     % should always be priced higher than OTM due to convexity arbitrage 
     floor_check = zc_floors{:, itm_strike} - zc_floors{:, otm_strike}; 
-    
+    fprintf('\nFloors dimension %d\n', size(zc_floors, 1))
     % for each loop of year, we filter the corresponding series
     zc_floors = zc_floors(~(floor_check < 0), :);
     
