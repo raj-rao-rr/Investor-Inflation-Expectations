@@ -62,29 +62,32 @@ monthly_cpi = rmmissing(monthly_cpi);
 
 %% Perform operation on inflation options data to remap CUSIP (stored in Temp)
 
-% expressed path is of the form [compiler] -b [script path]
-% NOTE THAT COMPILER PATH AND SCRIPT PATH ARE DEPENDENT ON USER SPECIFICATION
-!/apps/Anaconda3-2019.03/bin/python -b '/home/rcerxr21/DesiWork/IIE_GIT/Code/lib/option_remapping.py'
+% load in the mapping conventions
+cap_mapping = readtable(strcat(root_dir, ...
+    '/Input/options/usd-inflation-zc-caps.xlsx'), 'Sheet', 'map');
+flr_mapping = readtable(strcat(root_dir, ...
+    '/Input/options/usd-inflation-zc-floors.xlsx'), 'Sheet', 'map');
 
-%% Inflation Options Data (Caps & Floors), taken from Bloomberg
-
-% data is stored for each Term and Strike, in the order of Bid, Ask, Last Price
+% load in the price data from options
 usd_inflation_zc_caps = readtable(strcat(root_dir, ...
-    '/Temp/options/usd-zc-inflation-caps.csv'), 'PreserveVariableNames', true);
-usd_inflation_yoy_caps = readtable(strcat(root_dir, ...
-    '/Temp/options/usd-yoy-inflation-caps.csv'), 'PreserveVariableNames', true);
-
+    '/Input/options/usd-inflation-zc-caps.xlsx'), 'Sheet', 'prices', ...
+    'PreserveVariableNames', true);
 usd_inflation_zc_floors = readtable(strcat(root_dir, ...
-    '/Temp/options/usd-zc-inflation-floors.csv'), 'PreserveVariableNames', true);
-usd_inflation_yoy_floors = readtable(strcat(root_dir, ...
-    '/Temp/options/usd-yoy-inflation-floors.csv'), 'PreserveVariableNames', true);
+    '/Input/options/usd-inflation-zc-floors.xlsx'), 'Sheet', 'prices', ...
+    'PreserveVariableNames', true);
+
+% remap the columns with economincally intutitve convention
+usd_inflation_zc_caps.Properties.VariableNames(2:end) = cap_mapping.STRIKE_TENOR';
+usd_inflation_zc_floors.Properties.VariableNames(2:end) = flr_mapping.STRIKE_TENOR';
 
 % remove NaNs and missing rows from the dataset
 usd_inflation_zc_caps = rmmissing(usd_inflation_zc_caps);
-usd_inflation_yoy_caps = rmmissing(usd_inflation_yoy_caps);
-
 usd_inflation_zc_floors = rmmissing(usd_inflation_zc_floors);
-usd_inflation_yoy_floors = rmmissing(usd_inflation_yoy_floors);
+
+% start data series from 9/1/2019 (weird errors in early pricing)
+cut_off = datetime('09/01/2019', 'InputFormat', 'MM/dd/yyyy');
+usd_inflation_zc_caps = usd_inflation_zc_caps(usd_inflation_zc_caps.Dates >= cut_off, :); 
+usd_inflation_zc_floors = usd_inflation_zc_floors(usd_inflation_zc_floors.Dates >= cut_off, :); 
 
 %% USD Inflation Zero-Coupon Swaps Data, taken from Bloomberg
 
@@ -619,8 +622,7 @@ save('Temp/DATA', 'annual_cpi', 'monthly_cpi','ust_rates', 'tips_rates', ...
     'basis_tb',  'bbg_eco_release', 'fed_funds', 'sp500', 'vix', ...
     'swanson_2019', 'nakamura_steinsson_2018')
 
-save('Temp/OPTIONS', 'usd_inflation_zc_caps', 'usd_inflation_yoy_caps', ...
-    'usd_inflation_zc_floors', 'usd_inflation_yoy_floors')
+save('Temp/OPTIONS', 'usd_inflation_zc_caps', 'usd_inflation_zc_floors')
 
 save('Temp/SWAPS', 'usd_inf_swaps', 'uk_cpi_swaps', 'uk_rpi_swaps', ...
     'eur_inf_swaps', 'france_inf_swaps')

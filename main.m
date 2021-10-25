@@ -5,7 +5,7 @@ clear; clc;
 %% set the primary directory to work in  
 root_dir = pwd;
 
-% enter the root directory 
+% enter the root directorot ty 
 cd(root_dir)            
 
 %% add paths to acess files
@@ -20,3 +20,4 @@ addpath([root_dir filesep 'Output'])
 % run('implied_probability.m')
 % run('macro_regressions.m')  
 % run('produce_graphs.m')  
+

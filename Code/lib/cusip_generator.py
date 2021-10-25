@@ -17,6 +17,7 @@ icon on the Bloomberg Excel tab to pull information on Bid Price, Ask Price, & L
 # PACKAGE IMPORTS
 ##########################################################################
 
+import os
 import pandas as pd 
 import numpy as np
 
@@ -24,101 +25,61 @@ import numpy as np
 curr_pwd = os.getcwd()
 
 if 'NYRESAN' in curr_pwd: # working on a local instance
-    baseDirectory = '/'.join(curr_pwd.split('\\')[:-1])
+    baseDirectory = '/'.join(curr_pwd.split('\\')[:-2])
 else:
-    baseDirectory = '/'.join(curr_pwd.split('/')[:-1])
+    baseDirectory = '/'.join(curr_pwd.split('/')[:-2])
 
-inputDirectory = baseDirectory + 'input/'
+inputDirectory = baseDirectory + '/Input/'
 
 
 # %% Building Bloomberg CUSIP Handles for inflation zero-coupon CAPs
 
-zc_cap_base_cusip = 'USZPC'
-yoy_cap_base_cusip = 'USYPC'
+zc_caps_ticker = pd.read_excel(inputDirectory + 'options/option_tickers.xlsx', 
+                               sheet_name='US_CPI_ZCC', index_col='Term')
+nRows, mCols = zc_caps_ticker.shape
+cap_strikes = zc_caps_ticker.columns
+term_struct = zc_caps_ticker.index
 
-caps_strikes = {'1.00%': '1', '1.50%': 'S', '2.00%': '2', '2.50%': 'R', '3.00%': '3', '3.50%': 'Q', 
-                '4.00%': '4', '4.50%': 'P', '5.00%': '5', '6.00%': '6'}
-cap_term_map = {'1y': ('01', '1'), '3y': ('03', '3'), '5y': ('05', '5'), '7y': ('07', '7'), 
-                '10y': ('10', '10'), '15y': ('15', '15'), '20y': ('20', '20'), '30y': ('30', '30')}
+# initialize containers to hold all 
+cap_container = np.empty(shape=(mCols, nRows), dtype=object)
+str_container = np.empty(shape=(mCols, nRows), dtype=object)
 
-zc_cusip_cap_map = {}
-yoy_cusip_cap_map = {}
-
-for cap_strike in caps_strikes.keys():
-    
-    cap_cusip_strike = caps_strikes[cap_strike]
-    
-    # check whether the strike has special formatting rules
-    cap_norm_check = cap_cusip_strike.isnumeric()
-    
-    for cap_term in cap_term_map.keys():
-        
-        # check whether a half strike is present
-        if cap_norm_check:
-            zc_cusip = zc_cap_base_cusip + cap_cusip_strike + cap_term_map[cap_term][0]
-            yoy_cusip = yoy_cap_base_cusip + cap_cusip_strike + cap_term_map[cap_term][0]
-            
-            # e.g. USZPC101 BFIL Curncy : 1y 1.00%
-            zc_cusip_cap_map[zc_cusip + ' BFIL ' + 'Curncy'] = cap_term + ' ' + cap_strike
-            yoy_cusip_cap_map[yoy_cusip + ' BFIL ' + 'Curncy'] = cap_term + ' ' + cap_strike
-        else:
-            zc_cusip = zc_cap_base_cusip + cap_cusip_strike + cap_term_map[cap_term][1]
-            yoy_cusip = yoy_cap_base_cusip + cap_cusip_strike + cap_term_map[cap_term][1]
-            
-            # e.g. USYPCS1 BFIL Curncy : 1y 1.50%
-            zc_cusip_cap_map[zc_cusip + ' BFIL ' + 'Curncy'] = cap_term + ' ' + cap_strike
-            yoy_cusip_cap_map[yoy_cusip + ' BFIL ' + 'Curncy'] = cap_term + ' ' + cap_strike
-
-# construct a horizontal DataFrame, useful for drawing Bloomberg prices (CAPs)
-zc_caps = pd.DataFrame.from_dict(zc_cusip_cap_map, orient='index').T
-yoy_caps = pd.DataFrame.from_dict(yoy_cusip_cap_map, orient='index').T
+for i, col in enumerate(cap_strikes):
+    cap_container[i] = zc_caps_ticker[col].values
+    str_container[i] = np.array(list(map(lambda x: str(round(col * 100, 2)) + '% ' + x,  
+                 term_struct)))
+  
+# convert the containers to dictionary maps
+mapped_zc_caps = {'BBG_TICKER' : cap_container.flatten(), 
+                  'STRIKE_TENOR' : str_container.flatten()}
+mapped_zc_caps = pd.DataFrame(mapped_zc_caps)
 
 # %% Building Bloomberg CUSIP Handles for inflation zero-coupon FLOORs
 
-zc_floor_base_cusip = 'USZPF'
-yoy_floor_base_cusip = 'USYPF'
+zc_floors_ticker = pd.read_excel(inputDirectory + 'options/option_tickers.xlsx', 
+                               sheet_name='US_CPI_ZCF', index_col='Term')
+nRows, mCols = zc_floors_ticker.shape
+floor_strikes = zc_floors_ticker.columns
+term_struct = zc_floors_ticker.index
 
-floor_strikes = {'-3.00%': 'X', '-2.00%': 'O', '-1.00%': 'Z', '-0.50%': 'U', '0.00%': '0', 
-                '0.50%': 'T', '1.00%': '1', '1.50%': 'S', '2.00%': '2', '3.00%': '3'}
-floor_term_map = {'1y': ('01', '1'), '3y': ('03', '3'), '5y': ('05', '5'), '7y': ('07', '7'), 
-                '10y': ('10', '10'), '15y': ('15', '15'), '20y': ('20', '20'), '30y': ('30', '30')}
+# initialize containers to hold all 
+floor_container = np.empty(shape=(mCols, nRows), dtype=object)
+str_container = np.empty(shape=(mCols, nRows), dtype=object)
 
-zc_cusip_floor_map = {}
-yoy_cusip_floor_map = {}
+for i, col in enumerate(floor_strikes):
+    floor_container[i] = zc_floors_ticker[col].values
+    str_container[i] = np.array(list(map(lambda x: str(round(col * 100, 2)) + '% ' + x,  
+                 term_struct)))
+  
+# convert the containers to dictionary maps
+mapped_zc_floors = {'BBG_TICKER' : floor_container.flatten(), 
+                    'STRIKE_TENOR' : str_container.flatten()}
+mapped_zc_floors = pd.DataFrame(mapped_zc_floors)
 
-for floor_strike in floor_strikes.keys():
-    
-    floor_cusip_strike = floor_strikes[floor_strike]
-    
-    # check whether the strike is normal (rounded strikes) or half-strikes
-    cap_norm_check = ~np.isin(floor_strike, ['-3.00%', '-2.00%', '-0.50%', '0.00%', '0.50%', 
-                                             '1.50%'])
-    
-    for floor_term in floor_term_map.keys():
-        
-        if cap_norm_check:
-            zc_cusip = zc_floor_base_cusip + floor_cusip_strike + floor_term_map[floor_term][0]
-            yoy_cusip = yoy_floor_base_cusip + floor_cusip_strike + floor_term_map[floor_term][0]
-            
-            zc_cusip_floor_map[zc_cusip + ' BFIL ' + 'Curncy'] = floor_term + ' ' + floor_strike
-            yoy_cusip_floor_map[yoy_cusip + ' BFIL ' + 'Curncy'] = floor_term + ' ' + floor_strike
-        else:
-            zc_cusip = zc_floor_base_cusip + floor_cusip_strike + floor_term_map[floor_term][1]
-            yoy_cusip = yoy_floor_base_cusip + floor_cusip_strike + floor_term_map[floor_term][1]
-            
-            zc_cusip_floor_map[zc_cusip + ' BFIL ' + 'Curncy'] = floor_term + ' ' + floor_strike
-            yoy_cusip_floor_map[yoy_cusip + ' BFIL ' + 'Curncy'] = floor_term + ' ' + floor_strike
-
-# construct a horizontal DataFrame, useful for drawing Bloomberg prices (FLOORs)            
-zc_floors = pd.DataFrame.from_dict(zc_cusip_floor_map, orient='index').T
-yoy_floors = pd.DataFrame.from_dict(yoy_cusip_floor_map, orient='index').T
-            
 # %% Export excel files 
 
 # data starts 9/23/2013 for Caps and Floors (Bid, Ask, Last Price data)
-zc_caps.to_excel(inputDirectory + 'options/usd-inflation-zc-caps.xlsx')
-yoy_caps.to_excel(inputDirectory + 'options/usd-inflation-yoy-caps.xlsx')
-zc_floors.to_excel(inputDirectory + 'options/usd-inflation-zc-floors.xlsx')
-yoy_floors.to_excel(inputDirectory + 'options/usd-inflation-yoy-floors.xlsx')
+mapped_zc_caps.to_excel(inputDirectory + 'options/usd-inflation-zc-caps.xlsx', index=False)
+mapped_zc_floors.to_excel(inputDirectory + 'options/usd-inflation-zc-floors.xlsx', index=False)
 
 print('Inflation options CUSIPS have been created and exported to the Input/ folder.\n')

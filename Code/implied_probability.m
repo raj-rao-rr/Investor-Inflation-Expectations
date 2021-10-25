@@ -2,35 +2,31 @@
 
 clearvars -except root_dir;
 
-load DATA annual_cpi monthly_cpi ust_rates tips_rates bbg_eco_release
+load DATA annual_cpi monthly_cpi ust_rates tips_rates bbg_eco_release ...
 
 load SWAPS usd_inf_swaps
 
+load OPTIONS usd_inflation_zc_caps usd_inflation_zc_floors
 
 %% Initialize terms and strikes for caps and floors
 
-caps_strikes_map = [1.00, 1.50, 2.00, 2.50, 3.00, 3.50, 4.00, 4.50, 5.00, 6.00];
-caps_strikes_remap = {'1.00%', '1.50%', '2.00%', '2.50%', '3.00%', '3.50%', ...
-                      '4.00%', '4.50%', '5.00%', '6.00%'};
+caps_strikes_map = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 6.0];
+caps_strikes_remap = {'1.0%', '1.5%', '2.0%', '2.5%', '3.0%', '3.5%', ...
+                      '4.0%', '4.5%', '5.0%', '6.0%'};
 
-floors_strikes_map = [-3.00, -2.00, -1.00, -0.50, 0.00, 0.50, 1.00, ...
-    1.50, 2.00, 3.00];
-floors_strikes_remap = {'-3.00%', '-2.00%', '-1.00%', '-0.50%', '0.00%', ...
-                       '0.50%', '1.00%', '1.50%', '2.00%', '3.00%'};
+floors_strikes_map = [-3.0, -2.0, -1.0, -0.5, 0.0, 0.5, 1.0, ...
+    1.5, 2.0, 3.0];
+floors_strikes_remap = {'-3.0%', '-2.0%', '-1.0%', '-0.5%', '0.0%', ...
+                       '0.5%', '1.0%', '1.5%', '2.0%', '3.0%'};
 
-term_remap = {'1y', '3y', '5y', '7y', '10y', '15y', '20y', '30y'};
+term_remap = {'1 Year', '3 Year', '5 Year', '7 Year', '10 Year', ...
+    '15 Year', '20 Year', '30 Year'};
 term_map = {'01', '03', '05', '07', '10', '15', '20', '30'};
 
 term_structure = [1, 3, 5, 7, 10, 15, 20, 30];
 
-%% Read in filtered zero-coupon option data and perform cleaning operations
-
-% data is stored for each Term and Strike, in the order of Bid, Ask, Last Price
-zc_caps = readtable(strcat(root_dir, '/Temp/options/usd-zc-inflation-caps.csv'), ...
-    'PreserveVariableNames', true);
-
-zc_floors = readtable(strcat(root_dir, '/Temp/options/usd-zc-inflation-floors.csv'), ...
-    'PreserveVariableNames', true);
+zc_caps = usd_inflation_zc_caps;
+zc_floors = usd_inflation_zc_floors;
 
 %% Convexity arbitrage check, remove dates that violate no-arbitrage theory
 
@@ -42,26 +38,26 @@ for i = 1:length(term_structure)
     % ----------------------------------------
     % Convexity check for inflation caps
     % ----------------------------------------
-    itm_strike = strcat(term, "_1.00% Last Price");
-    otm_strike = strcat(term, "_6.00% Last Price");
+    itm_strike = strcat("1.0% ", term);
+    otm_strike = strcat("6.0% ", term);
     
     % the price of this spread should always be positive, since ITM options
     % should always be priced higher than OTM due to convexity arbitrage 
     cap_check = zc_caps{:, itm_strike} - zc_caps{:, otm_strike}; 
-    fprintf('Caps dimension %d', size(zc_caps, 1))
+    
     % for each loop of year, we filter the corresponding series
     zc_caps = zc_caps(~(cap_check < 0), :);
     
     % ----------------------------------------
     % Convexity check for inflation floor
     % ----------------------------------------
-    itm_strike = strcat(term, "_3.00% Last Price");
-    otm_strike = strcat(term, "_-3.00% Last Price");
+    itm_strike = strcat("3.0% ", term);
+    otm_strike = strcat("-3.0% ", term);
     
     % the price of this spread should always be positive, since ITM options
     % should always be priced higher than OTM due to convexity arbitrage 
     floor_check = zc_floors{:, itm_strike} - zc_floors{:, otm_strike}; 
-    fprintf('\nFloors dimension %d\n', size(zc_floors, 1))
+    
     % for each loop of year, we filter the corresponding series
     zc_floors = zc_floors(~(floor_check < 0), :);
     
@@ -69,19 +65,19 @@ end
 
 % filter the corresponding Treasury Rates from Gurkaynak, Sack and Wright (2007)
 % find intersection of all dates to have one vector to filter
-d1 = intersect(zc_caps{:, 'Start Date'}, zc_floors{:, 'Start Date'});
+d1 = intersect(zc_caps{:, 'Dates'}, zc_floors{:, 'Dates'});
 d2 = intersect(ust_rates{:, 'Date'}, d1);
 
 % map new date to all price series
-zc_caps = zc_caps(ismember(zc_caps{:, 'Start Date'}, d2),:);
-zc_floors = zc_floors(ismember(zc_floors{:, 'Start Date'}, d2),:);
+zc_caps = zc_caps(ismember(zc_caps{:, 'Dates'}, d2),:);
+zc_floors = zc_floors(ismember(zc_floors{:, 'Dates'}, d2),:);
 ust_rates = ust_rates(ismember(ust_rates{:, 'Date'}, d2),:);
 tips_rates = tips_rates(ismember(tips_rates{:, 'Date'}, d2),:);
 
 %% Compute the implied probability distributions (integer-butterflies)
 
-inflation_strikes = {'-3.00%', '-2.00%', '-1.00%', '0.00%', '1.00%', '2.00%', ...
-    '3.00%', '4.00%', '5.00%', '6.00%'};
+inflation_strikes = {'-3.0%', '-2.0%', '-1.0%', '0.0%', '1.0%', '2.0%', ...
+    '3.0%', '4.0%', '5.0%', '6.0%'};
 
 cap_names = zc_caps.Properties.VariableNames;
 floor_names = zc_floors.Properties.VariableNames;
@@ -110,9 +106,9 @@ for i = 1:length(term_structure)
     for strike = 2:N-1
         
         % determine column names for all strikes used in butterfly
-        top_strike = strcat(term, "_", inflation_strikes(strike+1), " Last Price");
-        mid_strike = strcat(term, "_", inflation_strikes(strike), " Last Price");
-        bot_strike = strcat(term, "_", inflation_strikes(strike-1), " Last Price");
+        top_strike = strcat(inflation_strikes(strike+1), " ", term);
+        mid_strike = strcat(inflation_strikes(strike), " ", term); 
+        bot_strike = strcat(inflation_strikes(strike-1), " ", term);
         
         % we check to see whether we should make the spread of caps, floors
         % or if we should the average of both (caps + floors) / 2
@@ -157,11 +153,11 @@ for i = 1:length(term_structure)
     % ----------------------------------------
     
     % determine column names for all strikes used in vertical
-    left_strike1 = strcat(term, "_", "-3.00% Last Price");
-    left_strike2 = strcat(term, "_", "-2.00% Last Price");
+    left_strike1 = strcat("-3.0% ", term);
+    left_strike2 = strcat("-2.0% ", term);
     
-    right_strike1 = strcat(term, "_", "6.00% Last Price");
-    right_strike2 = strcat(term, "_", "5.00% Last Price");
+    right_strike1 = strcat("6.0% ", term);
+    right_strike2 = strcat("5.0% ", term);
     
     % compute the left vertical spread to measure the tail probability 
     implied_proba(:, 1) = zc_floors{:, left_strike2} - zc_floors{:, left_strike1};
@@ -175,11 +171,12 @@ for i = 1:length(term_structure)
     implied_proba_tb = array2table(scaled_proba);
     implied_proba_tb.Properties.VariableNames = inflation_strikes;
     implied_proba_tb.Date = zc_caps{:, 1}; 
-    implied_proba_tb = movevars(implied_proba_tb, 'Date', 'Before', '-3.00%'); 
+    implied_proba_tb = movevars(implied_proba_tb, 'Date', 'Before', '-3.0%'); 
     
     % exporting data table for implied probability
-    name = strcat('Output/market_implied_probability/imp_proba_', term, '_int_fly.csv');
-    writetable(implied_proba_tb, name{:});
+    name = strcat('Output/market_implied_probability/imp_proba_', ...
+        strjoin(strsplit(term{:}), '_'), '_int_fly.csv');
+    writetable(implied_proba_tb, name);
     
 end
 
@@ -192,10 +189,13 @@ fprintf('Implied probabilites have been constructured from integer-butterflies.\
 for idx1 = 1:length(term_remap)
     
     year_name = term_remap(idx1);
+    year_id = strsplit(year_name{:});
+    year_name = strjoin(strsplit(year_name{:}), '_');
+    
     year_str = term_map(idx1); 
     
     % reading in the implied probability distribution from the  butterflies
-    name = strcat('Output/market_implied_probability/imp_proba_', year_name{:}, ...
+    name = strcat('Output/market_implied_probability/imp_proba_', year_name, ...
         '_int_fly.csv');
     tb = readtable(name, 'PreserveVariableNames', true);
     N = size(tb, 1);
@@ -296,10 +296,29 @@ for idx1 = 1:length(term_remap)
     % Table Exportation for Figures
     % ----------------------------------------
     
-    proba_spline_tb = array2table(proba_spline);
-    proba_spline_tb.Properties.VariableNames = strsplit(num2str(strike_interpolation));
-    proba_spline_tb.Date = tb{:, 'Date'}; 
-    proba_spline_tb = movevars(proba_spline_tb, 'Date', 'Before', '-3'); 
+    % determine actual year for identification purpose
+    year_id = year_id(1);
+    old_filename = strcat('Output/market_implied_probability/BFIL_FITS/imp_proba_', ...
+        year_id{:}, 'y_spline_old.csv');
+    
+    % old data with longer historical data taken from Bloomberg BFIL
+    old_proba_spline_tb = readtable(old_filename, 'ReadVariableNames', true, ...
+        'PreserveVariableNames', true);
+    
+    % new data constructured from Bloomberg BFIM
+    new_proba_spline_tb = array2table(proba_spline);
+    new_proba_spline_tb.Properties.VariableNames = strsplit(num2str(strike_interpolation));
+    new_proba_spline_tb.Date = tb{:, 'Date'}; 
+    new_proba_spline_tb = movevars(new_proba_spline_tb, 'Date', 'Before', '-3'); 
+    
+    % merge both tables vertically along their shared axis 
+    proba_spline_tb = outerjoin(old_proba_spline_tb, new_proba_spline_tb, 'Keys', ...
+        [{'Date'}, intersect(old_proba_spline_tb.Properties.VariableNames, ...
+        new_proba_spline_tb.Properties.VariableNames)], 'MergeKeys', true); 
+    
+    % return only the unique items in probability spline (first case rule)
+    [~, idx] = unique(proba_spline_tb.Date);
+    proba_spline_tb = proba_spline_tb(idx, :);
     
 %     % construct the volatility smiles for caps & floors
 %     cap_smile_tb = array2table(cap_smile);
@@ -319,7 +338,7 @@ for idx1 = 1:length(term_remap)
 %     export_name3 = strcat('Output/market_implied_probability/imp_proba_', ...
 %         year_name, '_floor_smile.csv');
     
-    writetable(proba_spline_tb, export_name1{:});
+    writetable(proba_spline_tb, export_name1);
 %     writetable(cap_smile_tb, export_name2{:});
 %     writetable(floor_smile_tb, export_name3{:});
      
@@ -333,11 +352,12 @@ fprintf('Finished computing spline probabilities and volatility smiles.\n');
 for i = 1:length(term_structure) 
     
     term = term_remap(i);
+    term = strjoin(strsplit(term{:}), '_');
     
     % reading in the implied probability distribution
     name = strcat('Output/market_implied_probability/imp_proba_', ...
         term, '_spline.csv');
-    tb = readtable(name{:}, 'ReadVariableNames', true, ...
+    tb = readtable(name, 'ReadVariableNames', true, ...
         'PreserveVariableNames', true);
     
     % plot each corresponding series
@@ -365,7 +385,7 @@ for i = 1:length(term_structure)
     export_tb = movevars(export_tb, 'Date', 'Before', '<0.0%'); 
 
     export_name = strcat('usd_imp_proba_bucket_', term);
-    S.(export_name{:}) = export_tb;
+    S.(export_name) = export_tb;
     save('Temp/PROBA.mat', '-struct', 'S') 
     
 end
@@ -375,19 +395,20 @@ fprintf('All inflation bucket probabilities are calculated.\n');
 %% Compute each implied netural inflation rate for each corresponding year 
 
 % initialize the USD inflation rate matrix 
-tb = readtable('Output/market_implied_probability/imp_proba_1y_spline.csv', ...
+tb = readtable('Output/market_implied_probability/imp_proba_1_Year_spline.csv', ...
     'ReadVariableNames', true, 'PreserveVariableNames', true);
-usd_imp_inflation_rate = zeros(size(tb, 1), 8); %
+usd_imp_inflation_rate = zeros(size(tb, 1), 8); 
 
 % iterate through each term (year) and build implied pdf
 for i = 1:length(term_structure) 
     
     term = term_remap(i);
+    term = strjoin(strsplit(term{:}), '_');
 
     % reading in the implied probability distribution
-    name = strcat('Output/market_implied_probability/imp_proba_', term, ...
-        '_spline.csv');
-    tb = readtable(name{:}, 'ReadVariableNames', true, ...
+    name = strcat('Output/market_implied_probability/imp_proba_', ...
+        term, '_spline.csv');
+    tb = readtable(name, 'ReadVariableNames', true, ...
         'PreserveVariableNames', true);
     
     % create the cummulative distribution for each date, determine mid
@@ -395,7 +416,7 @@ for i = 1:length(term_structure)
     mid_diff = abs(cum_dist - 50);
     
     % iterate through each row to find absolute minimum of mid difference
-    for r = 1:1921
+    for r = 1:size(mid_diff, 1)
 
         [~, I] = min(mid_diff(r, :));
         usd_imp_inflation_rate(r, i) = str2double(tb.Properties.VariableNames(I+1));
@@ -408,6 +429,8 @@ end
 usd_imp_inflation_rate = array2table(usd_imp_inflation_rate);
 usd_imp_inflation_rate.Properties.VariableNames = term_remap;
 usd_imp_inflation_rate.Date = tb{:, 1}; 
-usd_imp_inflation_rate = movevars(usd_imp_inflation_rate, 'Date', 'Before', '1y'); 
+usd_imp_inflation_rate = movevars(usd_imp_inflation_rate, 'Date', 'Before', '1 Year'); 
 
 save('Temp/PROBA.mat', 'usd_imp_inflation_rate', '-append') 
+
+fprintf('Risk netural inflation probabilites are done.\n');

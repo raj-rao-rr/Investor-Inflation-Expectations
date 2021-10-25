@@ -6,9 +6,9 @@ clearvars -except root_dir;
 load DATA basis_tb ust_rates tips_rates sp500 vix bbg_eco_release swanson_2019 ...
     nakamura_steinsson_2018
 
-load PROBA usd_imp_proba_bucket_1y usd_imp_proba_bucket_3y usd_imp_proba_bucket_5y ...
-    usd_imp_proba_bucket_7y usd_imp_proba_bucket_10y usd_imp_proba_bucket_15y ...
-    usd_imp_proba_bucket_20y usd_imp_proba_bucket_30y usd_imp_inflation_rate
+load PROBA usd_imp_proba_bucket_1_Year usd_imp_proba_bucket_3_Year usd_imp_proba_bucket_5_Year ...
+    usd_imp_proba_bucket_7_Year usd_imp_proba_bucket_10_Year usd_imp_proba_bucket_15_Year ...
+    usd_imp_proba_bucket_20_Year usd_imp_proba_bucket_30_Year usd_imp_inflation_rate
 
 
 %% Measuring the aggregate impact of macro-annoucements on 10-y inflation basis
@@ -113,14 +113,14 @@ beta1 = bbg_eco_release(ismember(bbg_eco_release.TICKER, cols), :);
 beta1 = pivotTable(beta1, 'SURPRISES', 'RELEASE_DATE', 'NAME');
 
 % compute regressions tables with a 1-difference window for inflation probabilities 
-tb1 = regression(beta1, usd_imp_proba_bucket_1y, 'diff');
-tb2 = regression(beta1, usd_imp_proba_bucket_3y, 'diff');
-tb3 = regression(beta1, usd_imp_proba_bucket_5y, 'diff');
-tb4 = regression(beta1, usd_imp_proba_bucket_7y, 'diff');
-tb5 = regression(beta1, usd_imp_proba_bucket_10y, 'diff');
-tb6 = regression(beta1, usd_imp_proba_bucket_15y, 'diff');
-tb7 = regression(beta1, usd_imp_proba_bucket_20y, 'diff');
-tb8 = regression(beta1, usd_imp_proba_bucket_30y, 'diff');
+tb1 = regression(beta1, usd_imp_proba_bucket_1_Year, 'diff');
+tb2 = regression(beta1, usd_imp_proba_bucket_3_Year, 'diff');
+tb3 = regression(beta1, usd_imp_proba_bucket_5_Year, 'diff');
+tb4 = regression(beta1, usd_imp_proba_bucket_7_Year, 'diff');
+tb5 = regression(beta1, usd_imp_proba_bucket_10_Year, 'diff');
+tb6 = regression(beta1, usd_imp_proba_bucket_15_Year, 'diff');
+tb7 = regression(beta1, usd_imp_proba_bucket_20_Year, 'diff');
+tb8 = regression(beta1, usd_imp_proba_bucket_30_Year, 'diff');
 
 writetable(tb1, 'Output/regressions/usd_inflation_proba_1y_regression_bbg.csv');
 writetable(tb2, 'Output/regressions/usd_inflation_proba_3y_regression_bbg.csv');
@@ -130,59 +130,3 @@ writetable(tb5, 'Output/regressions/usd_inflation_proba_10y_regression_bbg.csv')
 writetable(tb6, 'Output/regressions/usd_inflation_proba_15y_regression_bbg.csv');
 writetable(tb7, 'Output/regressions/usd_inflation_proba_20y_regression_bbg.csv');
 writetable(tb8, 'Output/regressions/usd_inflation_proba_30y_regression_bbg.csv');
-
-%% Regress changes in inflation probabilites against monetary-shocks (Swanson)
-
-% compute regressions tables with a 1-difference window for basis 
-tb1 = regression(swanson_2019, usd_imp_proba_bucket_1y, 'diff');
-tb2 = regression(swanson_2019, usd_imp_proba_bucket_3y, 'diff');
-tb3 = regression(swanson_2019, usd_imp_proba_bucket_5y, 'diff');
-tb4 = regression(swanson_2019, usd_imp_proba_bucket_7y, 'diff');
-tb5 = regression(swanson_2019, usd_imp_proba_bucket_10y, 'diff');
-tb6 = regression(swanson_2019, usd_imp_proba_bucket_15y, 'diff');
-tb7 = regression(swanson_2019, usd_imp_proba_bucket_20y, 'diff');
-tb8 = regression(swanson_2019, usd_imp_proba_bucket_30y, 'diff');
-
-writetable(tb1, 'Output/regressions/swanson_usd_inf_proba_1y_regression.csv');
-writetable(tb2, 'Output/regressions/swanson_usd_inf_proba_3y_regression.csv');
-writetable(tb3, 'Output/regressions/swanson_usd_inf_proba_5y_regression.csv');
-writetable(tb4, 'Output/regressions/swanson_usd_inf_proba_7y_regression.csv');
-writetable(tb5, 'Output/regressions/swanson_usd_inf_proba_10y_regression.csv');
-writetable(tb6, 'Output/regressions/swanson_usd_inf_proba_15y_regression.csv');
-writetable(tb7, 'Output/regressions/swanson_usd_inf_proba_20y_regression.csv');
-writetable(tb8, 'Output/regressions/swanson_usd_inf_proba_30y_regression.csv');
-
-%% Regress changes in the implied inflation rate against monetary-shocks (Swanson)
-
-% compute regressions tables with a 1-difference window for basis 
-tb1 = regression(swanson_2019, usd_imp_inflation_rate, 'diff');
-
-writetable(tb1, 'Output/regressions/swanson_usd_imp_inf_rate_regression.csv');
-
-%% Regress changes in inflation probabilites against monetary-shocks (Nak-Stein)
-
-% compute regressions tables with a 1-difference window for basis 
-tb1 = regression(nakamura_steinsson_2018, usd_imp_proba_bucket_1y, 'diff');
-tb2 = regression(nakamura_steinsson_2018, usd_imp_proba_bucket_3y, 'diff');
-tb3 = regression(nakamura_steinsson_2018, usd_imp_proba_bucket_5y, 'diff');
-tb4 = regression(nakamura_steinsson_2018, usd_imp_proba_bucket_7y, 'diff');
-tb5 = regression(nakamura_steinsson_2018, usd_imp_proba_bucket_10y, 'diff');
-tb6 = regression(nakamura_steinsson_2018, usd_imp_proba_bucket_15y, 'diff');
-tb7 = regression(nakamura_steinsson_2018, usd_imp_proba_bucket_20y, 'diff');
-tb8 = regression(nakamura_steinsson_2018, usd_imp_proba_bucket_30y, 'diff');
-
-writetable(tb1, 'Output/regressions/nak_stein_usd_inf_proba_1y_regression.csv');
-writetable(tb2, 'Output/regressions/nak_stein_usd_inf_proba_3y_regression.csv');
-writetable(tb3, 'Output/regressions/nak_stein_usd_inf_proba_5y_regression.csv');
-writetable(tb4, 'Output/regressions/nak_stein_usd_inf_proba_7y_regression.csv');
-writetable(tb5, 'Output/regressions/nak_stein_usd_inf_proba_10y_regression.csv');
-writetable(tb6, 'Output/regressions/nak_stein_usd_inf_proba_15y_regression.csv');
-writetable(tb7, 'Output/regressions/nak_stein_usd_inf_proba_20y_regression.csv');
-writetable(tb8, 'Output/regressions/nak_stein_usd_inf_proba_30y_regression.csv');
-
-%% Regress changes in the implied inflation rate against monetary-shocks (Nak-Stein)
-
-% compute regressions tables with a 1-difference window for basis 
-tb1 = regression(nakamura_steinsson_2018, usd_imp_inflation_rate, 'diff');
-
-writetable(tb1, 'Output/regressions/nak_stein_usd_imp_inf_rate_regression.csv');
