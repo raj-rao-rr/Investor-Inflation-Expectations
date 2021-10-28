@@ -7,10 +7,11 @@ Created on Wed Apr 27 11:48:00 2021
 
 This script is designed to be run once at the project inception, to construct an excel file
 to aid in the process of retrieving Bloomberg Price Data. All subsequent updates to price 
-data should not require the running of this file, unless the excel file is deleted.
+data should not require the running of this file, unless the excel files are deleted.
 
 After the file is run, the user must manually open the file(s) and use the Spreadsheet Builder
-icon on the Bloomberg Excel tab to pull information on Bid Price, Ask Price, & Last Price 
+icon on the Bloomberg Excel tab to pull information on Bid Price, Ask Price, & Last Price. The 
+files in question are usd-inflation-zc-caps.xlsx and usd-inflation-zc-floors.xlsx
 """
 
 ##########################################################################
