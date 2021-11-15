@@ -79,7 +79,6 @@ mapped_zc_floors = pd.DataFrame(mapped_zc_floors)
 
 # %% Export excel files 
 
-# data starts 9/23/2013 for Caps and Floors (Bid, Ask, Last Price data)
 mapped_zc_caps.to_excel(inputDirectory + 'options/usd-inflation-zc-caps.xlsx', index=False)
 mapped_zc_floors.to_excel(inputDirectory + 'options/usd-inflation-zc-floors.xlsx', index=False)
 
