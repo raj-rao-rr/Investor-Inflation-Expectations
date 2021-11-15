@@ -83,7 +83,7 @@ $ matlab20a-batch-withemail 5 main.m
 
 ## 5	Possible Extensions
 
-* TBD
+* Work to improve the method for collecting Bloomberg price data to be more efficient
 
 ## 6	Contributors
 * [Rajesh Rao](https://github.com/raj-rao-rr) (Sr. Research Analyst)
