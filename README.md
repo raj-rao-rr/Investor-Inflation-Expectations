@@ -83,7 +83,8 @@ $ matlab20a-batch-withemail 5 main.m
 
 ## 5	Possible Extensions
 
-* Work to improve the method for collecting Bloomberg price data to be more efficient
+* Work to improve the method for collecting Bloomberg price data to be more efficient, and less suceptible to hard data querying limits
+* Consider expanding work to construct smooth volatility smiles for inflation options. Refer to existing functions within the `.../Code/lib/` folder, namely inf_option_black_mdl.m and newton_raphson_iv.m for helpful information
 
 ## 6	Contributors
 * [Rajesh Rao](https://github.com/raj-rao-rr) (Sr. Research Analyst)
