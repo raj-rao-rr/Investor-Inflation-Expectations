@@ -69,11 +69,11 @@ Folder and sub-folders are provided to store graphs and tables for forecasts, re
     5. Search for the *Last Price* field from the search box and select it, this will return the last traded price for the security. 
     6. Enter the furthest date you would like to retrieve prices for, this is our start date.
     7. Select only to *Show Date* and *Show Security* from the preview screen and press the finish button.
-    8. After all price series have been pulled we will `Select All` contents within the second `Sheet` and `Copy + Paste Values` at the same location
-    9. Finally we complete a `Find and Replace` on the data removing null values (i.e., “#N/A N/A”) with empty spaces. This process will take a long time to complete, and may cause excel to not respond in the process, depending on the number of securities queried. In future this process WILL be improved 
+    8. After all price series have been pulled, we will `Select All` contents within the second `Sheet` and `Copy + Paste Values` at the same location
+    9. Finally, we complete a `Find and Replace` on the data removing null values (i.e., “#N/A N/A”) with empty spaces. This process will take a long time to complete, and may cause excel to not respond in the process, depending on the number of securities queried. In future this process WILL be improved 
   
 5. Now open the `/Input/swaps/...` and systematically update each `.xlsx ` spreadsheet with the latest price series. Simply open a given spreadsheet, go to the Bloomberg tab on Excel and click the **Refresh Worksheets** icon to update the Bloomberg formulas and save spreadsheet. *Note if working on a separate server or cluster, these refreshed worksheets will need to be transferred to the designated workstation*. 
-7. To update the data series entitled `bloomberg_economic_releases.csv`, refer to this [repo](https://github.com/raj-rao-rr/BBG-ECO-EXCEL). Simply transfer the `Output` series from that project to the `Input` folder of this repo, following the neccesary steps outlined in that repo for replication. 
+7. To update the data series entitled `bloomberg_economic_releases.csv`, refer to this [repo](https://github.com/raj-rao-rr/BBG-ECO-EXCEL). Simply transfer the `Output` series from that project to the `Input` folder of this repo, following the necessary steps outlined in that repo for replication. 
 8. Download the updated [Nakamura and Steinsson (2018)](http://www.columbia.edu/~jma2241/replication/NS.xlsx) shocks from Miguel Acosta's website and rename the file as **nakamura_steinsson_shocks.xlsx**. In future this link may change so refer to [Emi Nakamura](https://eml.berkeley.edu/~enakamura/papers.html) personal website for further details. 
 9. You may opt to run the `main.m` file in a MATLAB interactive session or via terminal on your local machine or HPC cluster.
 ```
