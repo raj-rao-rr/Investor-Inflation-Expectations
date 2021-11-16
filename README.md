@@ -4,10 +4,9 @@
 The primary function of this project is to construct measures of inflation expectations from USD inflation options (i.e., caps and floors). We construct implied probability density measures from option butterflies and perform regression analysis examining the response of these expectations to changes in FOMC signaling and macroeconomic announcements.
 
 ## 2	Software Dependencies
-*	MATLAB 2020a with the following toolboxes (Econometrics, Optimization, Financial)
-*	Python 3.6 with the following toolboxes (Pandas)
+*	MATLAB 2020a with at least 1 GB od memory with the following toolboxes installed (Econometrics, Optimization, Financial)
+*	Python 3.6 with the following libraries installed (Pandas)
 *	Bloomberg Professional Services for historical data
-*	MATLAB system environment with at least 5 GB of memory
 
 ## 3	Code Structure
 
