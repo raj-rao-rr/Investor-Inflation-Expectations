@@ -627,4 +627,4 @@ save('Temp/OPTIONS', 'usd_inflation_zc_caps', 'usd_inflation_zc_floors')
 save('Temp/SWAPS', 'usd_inf_swaps', 'uk_cpi_swaps', 'uk_rpi_swaps', ...
     'eur_inf_swaps', 'france_inf_swaps')
 
-fprintf('All data has been downloaded.\n');
+fprintf('1. All data has been downloaded.\n');

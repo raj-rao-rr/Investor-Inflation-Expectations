@@ -287,20 +287,19 @@ exportgraphics(fig, export_name);
 cols = {'US CPI Urban Consumers MoM SA'};
 
 % shifted_forecat probability
-usd_forecast_inf_rate = usd_imp_inflation_rate;
-usd_forecast_inf_rate{:, 1} = usd_forecast_inf_rate{:, 1} + 365;
+usd_imp_inflation_rate{:, 'Date'} = usd_imp_inflation_rate{:, 'Date'} + 365;
 
 % compute pivot table with surprise z-score
 beta1 = bbg_eco_release(ismember(bbg_eco_release.NAME, cols), :);
 beta1 = pivotTable(beta1, 'ACTUAL_RELEASE', 'RELEASE_DATE', 'NAME');
 
 % restrict the sample size for both forecasts and realized to match
-beta1 = beta1(ismember(beta1{:, 1}, usd_forecast_inf_rate{:, 1}), :);
-usd_forecast_inf_rate = usd_forecast_inf_rate(usd_forecast_inf_rate{:, 1} ....
+beta1 = beta1(ismember(beta1{:, 1}, usd_imp_inflation_rate{:, 1}), :);
+usd_imp_inflation_rate = usd_imp_inflation_rate(usd_imp_inflation_rate{:, 1} ....
     <= beta1{end, 1}, :);
 
 % compute accuracy statistics of forecast
-x1 = usd_forecast_inf_rate(ismember(usd_forecast_inf_rate{:, 1}, beta1{:, 1}), :);
+x1 = usd_imp_inflation_rate(ismember(usd_imp_inflation_rate{:, 1}, beta1{:, 1}), :);
 rmse = sqrt(mean((x1{:, 2}-beta1{:, 2}).^2));                                         % Root-mean-square deviation
 mape = (beta1{:, 2} - x1{:, 2}) ./ beta1{:, 2};                                       % Mean absolute percentage error 
 mape = mean(mape(isfinite(mape)));
@@ -317,7 +316,7 @@ set(fig, 'Position', [100, 100, 1150, 750]);
 hold on; 
 
 % plot each implied inflation rate per year
-a1 = plot(usd_forecast_inf_rate{:, 1}, usd_forecast_inf_rate{:, 2}, 'LineWidth', ...
+a1 = plot(usd_imp_inflation_rate{:, 1}, usd_imp_inflation_rate{:, 2}, 'LineWidth', ...
     1.5, 'DisplayName', 'Implied Inflation Forecast (1y)');
 
 % plot the realized CPI data from Bloomberg annoucements
@@ -372,3 +371,5 @@ legend(tb.Properties.VariableNames(inflation_col), 'Location', 'southeast')
 
 export_name = strcat('Output/US_CPI_MoM_Tenor_Coefs.png');
 exportgraphics(fig, export_name)
+
+fprintf('7. All plots have been created.\n\n');

@@ -8,6 +8,7 @@ load SWAPS usd_inf_swaps
 
 load OPTIONS usd_inflation_zc_caps usd_inflation_zc_floors
 
+
 %% Initialize terms and strikes for caps and floors
 
 caps_strikes_map = [1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 6.0];
@@ -180,7 +181,7 @@ for i = 1:length(term_structure)
     
 end
 
-fprintf('Implied probabilites have been constructured from integer-butterflies.\n');
+fprintf('2. Implied probabilites have been constructured from integer-butterflies.\n');
 
 %% Compute implied probability distribution spline
 
@@ -258,7 +259,7 @@ for idx1 = 1:length(term_remap)
   
 end
 
-fprintf('Finished computing spline probabilities and volatility smiles.\n');
+fprintf('3. Finished computing spline probabilities and volatility smiles.\n');
 
 %% Construct .mat file for each corresponding inflation probability bucket 
 
@@ -304,7 +305,7 @@ for i = 1:length(term_structure)
     
 end
 
-fprintf('All inflation bucket probabilities are calculated.\n');
+fprintf('4. All inflation bucket probabilities are calculated.\n');
 
 %% Compute each implied netural inflation rate for each corresponding year 
 
@@ -347,4 +348,4 @@ usd_imp_inflation_rate = movevars(usd_imp_inflation_rate, 'Date', 'Before', '1 Y
 
 save('Temp/PROBA.mat', 'usd_imp_inflation_rate', '-append') 
 
-fprintf('Risk netural inflation probabilites are done.\n');
+fprintf('5. Risk netural inflation probabilites are done.\n');

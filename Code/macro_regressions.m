@@ -130,3 +130,5 @@ writetable(tb5, 'Output/regressions/usd_inflation_proba_10y_regression_bbg.csv')
 writetable(tb6, 'Output/regressions/usd_inflation_proba_15y_regression_bbg.csv');
 writetable(tb7, 'Output/regressions/usd_inflation_proba_20y_regression_bbg.csv');
 writetable(tb8, 'Output/regressions/usd_inflation_proba_30y_regression_bbg.csv');
+
+fprintf('6. All regressions are completed.\n');
