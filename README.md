@@ -1,4 +1,4 @@
-# Analyzing the Response of Investor Inflation Expectations
+# Response of Investor Inflation Expectations
 
 ## 1	Introduction
 The primary function of this project is to construct measures of inflation expectations from USD inflation options (i.e., caps and floors). We construct implied probability density measures from option butterflies and perform regression analysis examining the response of these expectations to changes in FOMC signaling and macroeconomic announcements.
